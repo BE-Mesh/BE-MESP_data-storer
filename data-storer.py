@@ -9,6 +9,7 @@ from imports import storage
 
 def main():
     print("hello world")
+    stor = storage.Storage()
 
 
 
