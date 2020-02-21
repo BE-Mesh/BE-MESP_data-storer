@@ -80,7 +80,7 @@ class Storage(metaclass=Singleton):
 
         sql_create_table_TE_message_sent = """CREATE TABLE IF NOT EXISTS typeEvent_message_sent (
                                         id integer PRIMARY KEY AUTOINCREMENT,
-                                        event_id text NOT NULL,
+                                        event_id text NOT NULL UNIQUE,
                                         sender_id text NOT NULL,
                                         receiver_id text NOT NULL,
                                         next_hop_id text,
@@ -91,7 +91,7 @@ class Storage(metaclass=Singleton):
 
         sql_create_table_TE_message_received = """CREATE TABLE IF NOT EXISTS typeEvent_message_received (
                                         id integer PRIMARY KEY AUTOINCREMENT,
-                                        event_id text NOT NULL,
+                                        event_id text NOT NULL UNIQUE,
                                         sender_id text NOT NULL,
                                         receiver_id text NOT NULL,
                                         prev_hop_id text,
@@ -102,7 +102,7 @@ class Storage(metaclass=Singleton):
 
         sql_create_table_TE_incoming_connection_attempts = """CREATE TABLE IF NOT EXISTS typeEvent_incoming_connection_attempts (
                                                 id integer PRIMARY KEY AUTOINCREMENT,
-                                                event_id text NOT NULL,
+                                                event_id text NOT NULL UNIQUE,
                                                 requester_id text NOT NULL,
                                                 notes text,
                                                 FOREIGN KEY (event_id) REFERENCES events (event_id)
@@ -110,7 +110,7 @@ class Storage(metaclass=Singleton):
 
         sql_create_table_TE_outgoing_connection_attempts = """CREATE TABLE IF NOT EXISTS typeEvent_outgoing_connection_attempts (
                                                 id integer PRIMARY KEY AUTOINCREMENT,
-                                                event_id text NOT NULL,
+                                                event_id text NOT NULL UNIQUE,
                                                 target_id text NOT NULL,
                                                 notes text,
                                                 FOREIGN KEY (event_id) REFERENCES events (event_id)
@@ -118,7 +118,7 @@ class Storage(metaclass=Singleton):
 
         sql_create_table_TE_connection_attempts_outcomes = """CREATE TABLE IF NOT EXISTS typeEvent_connection_attempts_outcomes (
                                                 id integer PRIMARY KEY AUTOINCREMENT,
-                                                event_id text NOT NULL,
+                                                event_id text NOT NULL UNIQUE,
                                                 requester_id text NOT NULL,
                                                 target_id text NOT NULL,
                                                 outcome text NOT NULL,
@@ -128,20 +128,20 @@ class Storage(metaclass=Singleton):
 
         sql_create_table_TE_device_up = """CREATE TABLE IF NOT EXISTS typeEvent_device_up (
                                                 id integer PRIMARY KEY AUTOINCREMENT,
-                                                event_id text NOT NULL,
+                                                event_id text NOT NULL UNIQUE,
                                                 FOREIGN KEY (event_id) REFERENCES events (event_id)
                                             );"""
 
         sql_create_table_TE_assume_role = """CREATE TABLE IF NOT EXISTS typeEvent_assume_role (
                                                         id integer PRIMARY KEY AUTOINCREMENT,
-                                                        event_id text NOT NULL,
+                                                        event_id text NOT NULL UNIQUE,
                                                         role text NOT NULL,
                                                         FOREIGN KEY (event_id) REFERENCES events (event_id)
                                                     );"""
 
         sql_create_table_TE_scan = """CREATE TABLE IF NOT EXISTS typeEvent_scan (
                                                         id integer PRIMARY KEY AUTOINCREMENT,
-                                                        event_id text NOT NULL,
+                                                        event_id text NOT NULL UNIQUE,
                                                         start_or_stop text NOT NULL,
                                                         FOREIGN KEY (event_id) REFERENCES events (event_id)
                                                     );"""

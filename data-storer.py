@@ -1,4 +1,5 @@
 from imports import storage
+from imports import inputRetriever
 
 
 
@@ -9,7 +10,10 @@ from imports import storage
 
 def main():
     print("hello world")
-    stor = storage.Storage()
+    ir = inputRetriever.InputRetriever()
+    #stor = storage.Storage()
+
+
 
 
 
