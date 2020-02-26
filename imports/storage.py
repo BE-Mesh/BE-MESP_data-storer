@@ -161,5 +161,42 @@ class Storage(metaclass=Singleton):
         return 0,None
 
 
+    def storeMessageSentEvent(self,ts,submitter_id,sender,receiver,next_hop,message_type,payload):
+        event_type = 0
+        print ("Storing Message-Sent Event...")
+        return 0,None
 
+    def storeMessageRcvEvent(self,ts,submitter_id,sender,receiver,prev_hop,message_type,payload):
+        event_type = 1
+        print ("Storing Message-Received Event...")
+        return 0,None
 
+    def storeOutgoingConnectionAttemptEvent(self,ts,submitter_id,connect_to):
+        event_type = 2
+        print ("Storing Outgoing ConnectionAttempt Event...")
+        return 0,None
+
+    def storeIncomingConnectionAttemptEvent(self,ts,submitter_id,connect_from):
+        event_type = 3
+        print ("Storing Incoming ConnectionAttempt Event...")
+        return 0,None
+
+    def storeConnectionAttemptResultEvent(self,ts,submitter_id,connect_from,connect_to,outcome):
+        event_type = 4
+        print ("Storing ConnectionAttemptResult Event with result %s..." % outcome)
+        return 0,None
+
+    def storeDeviceUpEvent(self,ts,submitter_id):
+        event_type = 5
+        print ("Storing Device Up Event...")
+        return 0,None
+
+    def storeAssumeRoleEvent(self,ts,submitter_id,role):
+        event_type = 6
+        print ("Storing Assume Role Event with role %s ..." % role)
+        return 0,None
+
+    def storeScanEvent(self,ts,submitter_id,status):
+        event_type = 7
+        print ("Storing Scan Event with status %s ..." % status)
+        return 0,None
