@@ -56,9 +56,18 @@ class InputRetriever(metaclass=Singleton):
         for file_entry in f_l_t:
             name_check = bool(re.match('^(?!\.).*(\.csv)$', file_entry))
             if name_check:
-                loc_input_file_list.append(file_entry)
+                loc_input_file_list.append(self.__input_dir_path + '/' + file_entry)
 
+        print('__input_dir_path ',self.__input_dir_path)
         print("loc_input_file_list ",loc_input_file_list)
 
 
-        return 0,'dummy'
+        return 0,loc_input_file_list
+
+
+    def getInputDirPath(self):
+        return self.__input_dir_path
+
+
+    def getInputFilesList(self):
+        return self.__input_files_list

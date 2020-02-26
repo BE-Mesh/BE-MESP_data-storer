@@ -158,6 +158,8 @@ class Storage(metaclass=Singleton):
         self.__DBM.create_table(sql_create_table_TE_assume_role)
         self.__DBM.create_table(sql_create_table_TE_scan)
 
+        return 0,None
+
 
 
 
