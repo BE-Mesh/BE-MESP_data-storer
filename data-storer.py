@@ -20,6 +20,8 @@ def main():
                 print('Error occurred while parsing line %d in file %s : %s' % (index,file.split('/')[-1],res[1]))
         fd.close()
 
+    stor.close()
+
 def processLine(line):
 
     line_tok = line.split(',')
@@ -63,7 +65,7 @@ def __manageCase(tokenized_line,event_type):
         #message sent
         if len(tokenized_line) < 8:
             return 5, 'event-type \'Message Sent\' requires more arguments'
-        #todo: add eventual checks to each field
+        #todo: add eventual checks to each field @@@@ message type deve essere intero
 
         res = stor.storeMessageSentEvent(ts=tokenized_line[0],submitter_id=tokenized_line[1],sender=tokenized_line[3],
                                          receiver=tokenized_line[4],next_hop=tokenized_line[5],
@@ -73,7 +75,7 @@ def __manageCase(tokenized_line,event_type):
         #message received
         if len(tokenized_line) < 8:
             return 5, 'event-type \'Message Received\' requires more arguments'
-        # todo: add eventual checks to each field
+        # todo: add eventual checks to each field @@@@ message type deve essere intero
 
         res = stor.storeMessageRcvEvent(ts=tokenized_line[0], submitter_id=tokenized_line[1], sender=tokenized_line[3],
                                          receiver=tokenized_line[4], prev_hop=tokenized_line[5],

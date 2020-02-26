@@ -65,9 +65,7 @@ class Storage(metaclass=Singleton):
     def __initializeDBstructure(self):
         print("Initializing DB...")
         sql_create_table_devices = """ CREATE TABLE IF NOT EXISTS devices (
-                                            BLE_address text PRIMARY KEY,
-                                            name text ,
-                                            MAC_address text UNIQUE 
+                                            BLE_address text PRIMARY KEY
                                         ); """
 
         sql_create_table_events = """CREATE TABLE IF NOT EXISTS events (
@@ -147,23 +145,28 @@ class Storage(metaclass=Singleton):
                                                     );"""
 
 
-        self.__DBM.create_table(sql_create_table_devices)
-        self.__DBM.create_table(sql_create_table_events)
-        self.__DBM.create_table(sql_create_table_TE_message_sent)
-        self.__DBM.create_table(sql_create_table_TE_message_received)
-        self.__DBM.create_table(sql_create_table_TE_incoming_connection_attempts)
-        self.__DBM.create_table(sql_create_table_TE_outgoing_connection_attempts)
-        self.__DBM.create_table(sql_create_table_TE_connection_attempts_outcomes)
-        self.__DBM.create_table(sql_create_table_TE_device_up)
-        self.__DBM.create_table(sql_create_table_TE_assume_role)
-        self.__DBM.create_table(sql_create_table_TE_scan)
+        self.__DBM.createTable(sql_create_table_devices)
+        self.__DBM.createTable(sql_create_table_events)
+        self.__DBM.createTable(sql_create_table_TE_message_sent)
+        self.__DBM.createTable(sql_create_table_TE_message_received)
+        self.__DBM.createTable(sql_create_table_TE_incoming_connection_attempts)
+        self.__DBM.createTable(sql_create_table_TE_outgoing_connection_attempts)
+        self.__DBM.createTable(sql_create_table_TE_connection_attempts_outcomes)
+        self.__DBM.createTable(sql_create_table_TE_device_up)
+        self.__DBM.createTable(sql_create_table_TE_assume_role)
+        self.__DBM.createTable(sql_create_table_TE_scan)
 
         return 0,None
 
-
+    #TODO: implementare il salvataggio su tabella per ogni evento
+    #TODO: settare il check che il campo message tyope su message received or send sia un intero
     def storeMessageSentEvent(self,ts,submitter_id,sender,receiver,next_hop,message_type,payload):
         event_type = 0
         print ("Storing Message-Sent Event...")
+
+        self.__DBM.storeTableEntry('devices',[submitter_id])
+        self.__DBM.storeTableEntry('events', [submitter_id,ts,event_type])
+
         return 0,None
 
     def storeMessageRcvEvent(self,ts,submitter_id,sender,receiver,prev_hop,message_type,payload):
@@ -200,3 +203,6 @@ class Storage(metaclass=Singleton):
         event_type = 7
         print ("Storing Scan Event with status %s ..." % status)
         return 0,None
+
+    def close(self):
+        self.__DBM.closeConn()
