@@ -74,12 +74,55 @@ class DatabaseManager():
             if len(entries) < 6:
                 return 10, 'Error while storing typeEvent_message_received entry in Db, not enough arguments'
             try:
-                cur.execute("INSERT INTO {tn} ({c1}, {c2}, {c3}, {c4}, {c5}, {c6}) VALUES ('{ev_id}', '{s_id}', '{rec_id}', "
-                    "'{prev_hop_id}', '{m_type}', '{payld}')". \
-                    format(tn=table_name, c1='event_id', c2='sender_id', c3='receiver_id',
-                           c4='next_hop_id', c5='message_type', c6='payload',
-                           ev_id=entries[0], s_id=entries[1], rec_id=entries[2],
-                           prev_hop_id=entries[3], m_type=entries[4], payld=entries[5]))
+                cur.execute("INSERT INTO {tn} ({c1}, {c2}, {c3}, {c4}, {c5}, {c6}) "
+                            "VALUES ('{ev_id}', '{s_id}', '{rec_id}', "
+                            "'{prev_hop_id}', '{m_type}', '{payld}')". \
+                            format(tn=table_name, c1='event_id', c2='sender_id', c3='receiver_id',
+                                   c4='prev_hop_id', c5='message_type', c6='payload',
+                                   ev_id=entries[0], s_id=entries[1], rec_id=entries[2],
+                                   prev_hop_id=entries[3], m_type=entries[4], payld=entries[5]))
+            except sqlite3.IntegrityError as e:
+                self.__conn.close()
+                message = 'SQL Integrity error ' + str(e)
+                return 11, message
+
+        elif (table_name == 'typeEvent_outgoing_connection_attempts'):
+            if len(entries) < 2:
+                return 10, 'Error while storing typeEvent_outgoing_connection_attempts entry in Db, not enough arguments'
+            try:
+                cur.execute("INSERT INTO {tn} ({c1}, {c2}) "
+                            "VALUES ('{ev_id}', '{target_id}')". \
+                            format(tn=table_name, c1='event_id', c2='target_id',
+                                   ev_id=entries[0], target_id=entries[1]))
+            except sqlite3.IntegrityError as e:
+                self.__conn.close()
+                message = 'SQL Integrity error ' + str(e)
+                return 11, message
+
+        elif (table_name == 'typeEvent_incoming_connection_attempts'):
+            if len(entries) < 2:
+                return 10, 'Error while storing typeEvent_incoming_connection_attempts entry in Db, not enough arguments'
+            try:
+                cur.execute("INSERT INTO {tn} ({c1}, {c2}) "
+                            "VALUES ('{ev_id}', '{requester_id}')". \
+                            format(tn=table_name, c1='event_id', c2='requester_id',
+                                   ev_id=entries[0], requester_id=entries[1]))
+            except sqlite3.IntegrityError as e:
+                self.__conn.close()
+                message = 'SQL Integrity error ' + str(e)
+                return 11, message
+
+        elif (table_name == 'typeEvent_connection_attempts_outcomes'):
+            if len(entries) < 4:
+                return 10, 'Error while storing typeEvent_connection_attempts_outcomes entry in Db, not enough arguments'
+            try:
+                cur.execute("INSERT INTO {tn} ({c1}, {c2}, {c3}, {c4}) "
+                            "VALUES ('{ev_id}', '{req_id}', '{target_id}', "
+                            "'{outcome}')". \
+                            format(tn=table_name, c1='event_id', c2='requester_id', c3='target_id',
+                                   c4='outcome',
+                                   ev_id=entries[0], req_id=entries[1], target_id=entries[2],
+                                   outcome=entries[3]))
             except sqlite3.IntegrityError as e:
                 self.__conn.close()
                 message = 'SQL Integrity error ' + str(e)
