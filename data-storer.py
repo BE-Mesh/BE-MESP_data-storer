@@ -62,20 +62,28 @@ def __manageCase(tokenized_line,event_type):
     res = 1,'default'
 
     if(event_type == 0):
-        #message sent
+        # Message Sent
         if len(tokenized_line) < 8:
             return 5, 'event-type \'Message Sent\' requires more arguments'
-        #todo: add eventual checks to each field @@@@ message type deve essere intero
+
+        try:
+            int(tokenized_line[6])
+        except ValueError:
+            return 6, 'event-type \'Message Sent\' needs an integer value for message_type field'
 
         res = stor.storeMessageSentEvent(ts=tokenized_line[0],submitter_id=tokenized_line[1],sender=tokenized_line[3],
                                          receiver=tokenized_line[4],next_hop=tokenized_line[5],
                                          message_type=tokenized_line[6], payload=tokenized_line[7])
 
     elif (event_type == 1):
-        #message received
+        # Message Received
         if len(tokenized_line) < 8:
             return 5, 'event-type \'Message Received\' requires more arguments'
-        # todo: add eventual checks to each field @@@@ message type deve essere intero
+
+        try:
+            int(tokenized_line[6])
+        except ValueError:
+            return 6, 'event-type \'Message Received\' needs an integer value for message_type field'
 
         res = stor.storeMessageRcvEvent(ts=tokenized_line[0], submitter_id=tokenized_line[1], sender=tokenized_line[3],
                                          receiver=tokenized_line[4], prev_hop=tokenized_line[5],

@@ -81,7 +81,7 @@ class Storage(metaclass=Singleton):
                                         event_id text NOT NULL UNIQUE,
                                         sender_id text NOT NULL,
                                         receiver_id text NOT NULL,
-                                        next_hop_id text,
+                                        next_hop_id text NOT NULL,
                                         message_type text NOT NULL,
                                         payload text NOT NULL,
                                         FOREIGN KEY (event_id) REFERENCES events (event_id)
@@ -92,7 +92,7 @@ class Storage(metaclass=Singleton):
                                         event_id text NOT NULL UNIQUE,
                                         sender_id text NOT NULL,
                                         receiver_id text NOT NULL,
-                                        prev_hop_id text,
+                                        prev_hop_id text NOT NULL,
                                         message_type text NOT NULL,
                                         payload text NOT NULL,
                                         FOREIGN KEY (event_id) REFERENCES events (event_id)
@@ -102,7 +102,6 @@ class Storage(metaclass=Singleton):
                                                 id integer PRIMARY KEY AUTOINCREMENT,
                                                 event_id text NOT NULL UNIQUE,
                                                 requester_id text NOT NULL,
-                                                notes text,
                                                 FOREIGN KEY (event_id) REFERENCES events (event_id)
                                             );"""
 
@@ -110,7 +109,6 @@ class Storage(metaclass=Singleton):
                                                 id integer PRIMARY KEY AUTOINCREMENT,
                                                 event_id text NOT NULL UNIQUE,
                                                 target_id text NOT NULL,
-                                                notes text,
                                                 FOREIGN KEY (event_id) REFERENCES events (event_id)
                                             );"""
 
@@ -120,7 +118,6 @@ class Storage(metaclass=Singleton):
                                                 requester_id text NOT NULL,
                                                 target_id text NOT NULL,
                                                 outcome text NOT NULL,
-                                                notes text,
                                                 FOREIGN KEY (event_id) REFERENCES events (event_id)
                                             );"""
 
@@ -159,13 +156,41 @@ class Storage(metaclass=Singleton):
         return 0,None
 
     #TODO: implementare il salvataggio su tabella per ogni evento
-    #TODO: settare il check che il campo message tyope su message received or send sia un intero
     def storeMessageSentEvent(self,ts,submitter_id,sender,receiver,next_hop,message_type,payload):
         event_type = 0
         print ("Storing Message-Sent Event...")
 
-        self.__DBM.storeTableEntry('devices',[submitter_id])
-        self.__DBM.storeTableEntry('events', [submitter_id,ts,event_type])
+        fb = self.__DBM.checkTupleExists('devices',submitter_id)
+
+        if fb[0] != 0:
+            return fb[0],'Error while storing Message-Sent Event:  ' + fb[1]
+
+        if fb[0] == 0 and fb[1] == 0:
+            self.__DBM.storeTableEntry('devices',[submitter_id])
+
+
+
+        fb = self.__DBM.storeTableEntry('events', [submitter_id,ts,event_type])
+        if fb[0] != 0:
+            return fb[0],'Error while storing Message-Sent Event:  ' + fb[1]
+
+        res = self.__DBM.getTuple('events', submitter_id=submitter_id,timestamp=ts,type=event_type)
+
+        if res[0] > 0:
+            return res[0],'Error while storing Message-Sent Event: ' + res[1]
+
+        if (res[0] == 0 and (res[1] is None)):
+            raise Exception('entry not present on DB while previously stored, EXIT')
+
+        event_id = res[1][0]
+        fb = self.__DBM.storeTableEntry('typeEvent_message_sent', [event_id,sender,receiver,next_hop,message_type,payload])
+
+        if fb[0] != 0:
+           return fb[0],'Error while storing Message-Sent Event:  ' + fb[1]
+
+        print("CCC: ",res[1])
+        pass
+
 
         return 0,None
 
