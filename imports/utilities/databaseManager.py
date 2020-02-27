@@ -128,6 +128,45 @@ class DatabaseManager():
                 message = 'SQL Integrity error ' + str(e)
                 return 11, message
 
+        elif (table_name == 'typeEvent_device_up'):
+            if len(entries) < 1:
+                return 10, 'Error while storing typeEvent_device_up entry in Db, not enough arguments'
+            try:
+                cur.execute("INSERT INTO {tn} ({c1}) "
+                            "VALUES ('{ev_id}')". \
+                            format(tn=table_name, c1='event_id',
+                                   ev_id=entries[0] ))
+            except sqlite3.IntegrityError as e:
+                self.__conn.close()
+                message = 'SQL Integrity error ' + str(e)
+                return 11, message
+
+        elif (table_name == 'typeEvent_assume_role'):
+            if len(entries) < 2:
+                return 10, 'Error while storing typeEvent_assume_role entry in Db, not enough arguments'
+            try:
+                cur.execute("INSERT INTO {tn} ({c1}, {c2}) "
+                            "VALUES ('{ev_id}', '{role}' )". \
+                            format(tn=table_name, c1='event_id', c2='role',
+                                   ev_id=entries[0], role=entries[1]))
+            except sqlite3.IntegrityError as e:
+                self.__conn.close()
+                message = 'SQL Integrity error ' + str(e)
+                return 11, message
+
+        elif (table_name == 'typeEvent_scan'):
+            if len(entries) < 2:
+                return 10, 'Error while storing typeEvent_scan entry in Db, not enough arguments'
+            try:
+                cur.execute("INSERT INTO {tn} ({c1}, {c2}) "
+                            "VALUES ('{ev_id}', '{start_or_end}' )". \
+                            format(tn=table_name, c1='event_id', c2='start_or_end',
+                                   ev_id=entries[0], start_or_end=entries[1]))
+            except sqlite3.IntegrityError as e:
+                self.__conn.close()
+                message = 'SQL Integrity error ' + str(e)
+                return 11, message
+
         else:
             return 12,'No DB table found'
 
