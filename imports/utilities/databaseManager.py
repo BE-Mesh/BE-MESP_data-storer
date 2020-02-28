@@ -55,32 +55,32 @@ class DatabaseManager():
                 return 11, message
 
         elif (table_name == 'typeEvent_message_sent'):
-            if len(entries) < 6:
+            if len(entries) < 7:
                 return 10, 'Error while storing typeEvent_message_sent entry in Db, not enough arguments'
             try:
-                cur.execute("INSERT INTO {tn} ({c1}, {c2}, {c3}, {c4}, {c5}, {c6}) "
+                cur.execute("INSERT INTO {tn} ({c1}, {c2}, {c3}, {c4}, {c5}, {c6}, {c7}) "
                             "VALUES ('{ev_id}', '{s_id}', '{rec_id}', "
-                            "'{nx_hop_id}', '{m_type}', '{payld}')". \
+                            "'{nx_hop_id}', '{m_type}',{s_n}, '{payld}')". \
                             format(tn=table_name, c1='event_id', c2='sender_id', c3='receiver_id',
-                                   c4='next_hop_id', c5='message_type', c6='payload',
+                                   c4='next_hop_id', c5='message_type', c6='sequence_number', c7='payload',
                                    ev_id=entries[0], s_id=entries[1], rec_id=entries[2],
-                                   nx_hop_id=entries[3], m_type= entries[4],payld = entries[5]))
+                                   nx_hop_id=entries[3], m_type= entries[4],s_n= entries[5], payld = entries[6]))
             except sqlite3.IntegrityError as e:
                 self.__conn.close()
                 message = 'SQL Integrity error ' + str(e)
                 return 11, message
 
         elif (table_name == 'typeEvent_message_received'):
-            if len(entries) < 6:
+            if len(entries) < 7:
                 return 10, 'Error while storing typeEvent_message_received entry in Db, not enough arguments'
             try:
-                cur.execute("INSERT INTO {tn} ({c1}, {c2}, {c3}, {c4}, {c5}, {c6}) "
+                cur.execute("INSERT INTO {tn} ({c1}, {c2}, {c3}, {c4}, {c5}, {c6}, {c7}) "
                             "VALUES ('{ev_id}', '{s_id}', '{rec_id}', "
-                            "'{prev_hop_id}', '{m_type}', '{payld}')". \
+                            "'{prev_hop_id}', '{m_type}',{s_n}, '{payld}')". \
                             format(tn=table_name, c1='event_id', c2='sender_id', c3='receiver_id',
-                                   c4='prev_hop_id', c5='message_type', c6='payload',
+                                   c4='prev_hop_id', c5='message_type', c6='sequence_number', c7='payload',
                                    ev_id=entries[0], s_id=entries[1], rec_id=entries[2],
-                                   prev_hop_id=entries[3], m_type=entries[4], payld=entries[5]))
+                                   prev_hop_id=entries[3], m_type=entries[4],s_n= entries[5], payld = entries[6]))
             except sqlite3.IntegrityError as e:
                 self.__conn.close()
                 message = 'SQL Integrity error ' + str(e)

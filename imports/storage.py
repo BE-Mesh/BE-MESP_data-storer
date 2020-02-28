@@ -83,6 +83,7 @@ class Storage(metaclass=Singleton):
                                         receiver_id text NOT NULL,
                                         next_hop_id text NOT NULL,
                                         message_type text NOT NULL,
+                                        sequence_number integer,
                                         payload text NOT NULL,
                                         FOREIGN KEY (event_id) REFERENCES events (event_id)
                                     );"""
@@ -94,6 +95,7 @@ class Storage(metaclass=Singleton):
                                         receiver_id text NOT NULL,
                                         prev_hop_id text NOT NULL,
                                         message_type text NOT NULL,
+                                        sequence_number integer,
                                         payload text NOT NULL,
                                         FOREIGN KEY (event_id) REFERENCES events (event_id)
                                     );"""
@@ -156,7 +158,7 @@ class Storage(metaclass=Singleton):
         return 0,None
 
     #TODO: implementare il salvataggio su tabella per ogni evento
-    def storeMessageSentEvent(self,ts,submitter_id,sender,receiver,next_hop,message_type,payload):
+    def storeMessageSentEvent(self,ts,submitter_id,sender,receiver,next_hop,message_type,payload,sequence_number):
         event_type = 0
         print ("Storing Message-Sent Event...")
 
@@ -178,15 +180,16 @@ class Storage(metaclass=Singleton):
             raise Exception('entry not present on DB while previously stored, EXIT')
 
         event_id = res[1][0]
-        fb = self.__DBM.storeTableEntry('typeEvent_message_sent', [event_id,sender,receiver,next_hop,message_type,payload])
+        fb = self.__DBM.storeTableEntry('typeEvent_message_sent',
+                                        [event_id,sender,receiver,next_hop,message_type,sequence_number,payload])
 
         if fb[0] != 0:
             print('ERROR: ', fb[1])
-            raise Exception('Impossible to store entry in MessageSent table, DB integrity compromised, EXIT')
+            raise Exception('Impossible to store entry in typeEvent_message_sent table, DB integrity compromised, EXIT')
 
         return 0,None
 
-    def storeMessageRcvEvent(self,ts,submitter_id,sender,receiver,prev_hop,message_type,payload):
+    def storeMessageRcvEvent(self,ts,submitter_id,sender,receiver,prev_hop,message_type,payload,sequence_number):
         event_type = 1
         print ("Storing Message-Received Event...")
 
@@ -196,23 +199,23 @@ class Storage(metaclass=Singleton):
 
         fb = self.__DBM.storeTableEntry('events', [submitter_id,ts,event_type])
         if fb[0] != 0:
-            return fb[0],'Error while storing Message-Sent Event:  ' + fb[1]
+            return fb[0],'Error while storing Message-Received Event:  ' + fb[1]
 
         res = self.__DBM.getTuple('events', submitter_id=submitter_id, timestamp=ts, type=event_type)
 
         if res[0] > 0:
-            return res[0], 'Error while storing Message-Sent Event: ' + res[1]
+            return res[0], 'Error while storing Message-Received Event: ' + res[1]
 
         if (res[0] == 0 and (res[1] is None)):
             raise Exception('entry not present on DB while previously stored, EXIT')
 
         event_id = res[1][0]
         fb = self.__DBM.storeTableEntry('typeEvent_message_received',
-                                        [event_id, sender, receiver, prev_hop, message_type, payload])
+                                        [event_id, sender, receiver, prev_hop, message_type,sequence_number, payload])
 
         if fb[0] != 0:
             print('ERROR: ',fb[1])
-            raise Exception('Impossible to store entry in MessageReceived table, DB integrity compromised, EXIT')
+            raise Exception('Impossible to store entry in typeEvent_message_received table, DB integrity compromised, EXIT')
 
         return 0,None
 
@@ -226,12 +229,12 @@ class Storage(metaclass=Singleton):
 
         fb = self.__DBM.storeTableEntry('events', [submitter_id, ts, event_type])
         if fb[0] != 0:
-            return fb[0], 'Error while storing Message-Sent Event:  ' + fb[1]
+            return fb[0], 'Error while storing Outgoing ConnectionAttempt Event:  ' + fb[1]
 
         res = self.__DBM.getTuple('events', submitter_id=submitter_id, timestamp=ts, type=event_type)
 
         if res[0] > 0:
-            return res[0], 'Error while storing Message-Sent Event: ' + res[1]
+            return res[0], 'Error while storing Outgoing ConnectionAttempt Event: ' + res[1]
 
         if (res[0] == 0 and (res[1] is None)):
             raise Exception('entry not present on DB while previously stored, EXIT')
@@ -242,7 +245,7 @@ class Storage(metaclass=Singleton):
 
         if fb[0] != 0:
             print('ERROR: ', fb[1])
-            raise Exception('Impossible to store entry in MessageReceived table, DB integrity compromised, EXIT')
+            raise Exception('Impossible to store entry in typeEvent_outgoing_connection_attempts table, DB integrity compromised, EXIT')
 
         return 0,None
 
@@ -255,12 +258,12 @@ class Storage(metaclass=Singleton):
 
         fb = self.__DBM.storeTableEntry('events', [submitter_id, ts, event_type])
         if fb[0] != 0:
-            return fb[0], 'Error while storing Message-Sent Event:  ' + fb[1]
+            return fb[0], 'Error while storing Incoming ConnectionAttempt Event:  ' + fb[1]
 
         res = self.__DBM.getTuple('events', submitter_id=submitter_id, timestamp=ts, type=event_type)
 
         if res[0] > 0:
-            return res[0], 'Error while storing Message-Sent Event: ' + res[1]
+            return res[0], 'Error while storing Incoming ConnectionAttempt Event: ' + res[1]
 
         if (res[0] == 0 and (res[1] is None)):
             raise Exception('entry not present on DB while previously stored, EXIT')
@@ -271,7 +274,7 @@ class Storage(metaclass=Singleton):
 
         if fb[0] != 0:
             print('ERROR: ', fb[1])
-            raise Exception('Impossible to store entry in MessageReceived table, DB integrity compromised, EXIT')
+            raise Exception('Impossible to store entry in typeEvent_incoming_connection_attempts table, DB integrity compromised, EXIT')
 
         return 0, None
 
@@ -284,12 +287,12 @@ class Storage(metaclass=Singleton):
 
         fb = self.__DBM.storeTableEntry('events', [submitter_id, ts, event_type])
         if fb[0] != 0:
-            return fb[0], 'Error while storing Message-Sent Event:  ' + fb[1]
+            return fb[0], 'Error while storing ConnectionAttemptResult Event:  ' + fb[1]
 
         res = self.__DBM.getTuple('events', submitter_id=submitter_id, timestamp=ts, type=event_type)
 
         if res[0] > 0:
-            return res[0], 'Error while storing Message-Sent Event: ' + res[1]
+            return res[0], 'Error while storing ConnectionAttemptResult Event: ' + res[1]
 
         if (res[0] == 0 and (res[1] is None)):
             raise Exception('entry not present on DB while previously stored, EXIT')
@@ -300,7 +303,7 @@ class Storage(metaclass=Singleton):
 
         if fb[0] != 0:
             print('ERROR: ', fb[1])
-            raise Exception('Impossible to store entry in MessageReceived table, DB integrity compromised, EXIT')
+            raise Exception('Impossible to store entry in typeEvent_connection_attempts_outcomes table, DB integrity compromised, EXIT')
 
         return 0, None
 
@@ -313,12 +316,12 @@ class Storage(metaclass=Singleton):
 
         fb = self.__DBM.storeTableEntry('events', [submitter_id, ts, event_type])
         if fb[0] != 0:
-            return fb[0], 'Error while storing Message-Sent Event:  ' + fb[1]
+            return fb[0], 'Error while storing Device Up Event:  ' + fb[1]
 
         res = self.__DBM.getTuple('events', submitter_id=submitter_id, timestamp=ts, type=event_type)
 
         if res[0] > 0:
-            return res[0], 'Error while storing Message-Sent Event: ' + res[1]
+            return res[0], 'Error while storing Device Up Event: ' + res[1]
 
         if (res[0] == 0 and (res[1] is None)):
             raise Exception('entry not present on DB while previously stored, EXIT')
@@ -329,7 +332,7 @@ class Storage(metaclass=Singleton):
 
         if fb[0] != 0:
             print('ERROR: ', fb[1])
-            raise Exception('Impossible to store entry in MessageReceived table, DB integrity compromised, EXIT')
+            raise Exception('Impossible to store entry in typeEvent_device_up table, DB integrity compromised, EXIT')
 
         return 0, None
 
@@ -342,12 +345,12 @@ class Storage(metaclass=Singleton):
 
         fb = self.__DBM.storeTableEntry('events', [submitter_id, ts, event_type])
         if fb[0] != 0:
-            return fb[0], 'Error while storing Message-Sent Event:  ' + fb[1]
+            return fb[0], 'Error while storing Assume Role Event:  ' + fb[1]
 
         res = self.__DBM.getTuple('events', submitter_id=submitter_id, timestamp=ts, type=event_type)
 
         if res[0] > 0:
-            return res[0], 'Error while storing Message-Sent Event: ' + res[1]
+            return res[0], 'Error while storing Assume Role Event: ' + res[1]
 
         if (res[0] == 0 and (res[1] is None)):
             raise Exception('entry not present on DB while previously stored, EXIT')
@@ -358,7 +361,7 @@ class Storage(metaclass=Singleton):
 
         if fb[0] != 0:
             print('ERROR: ', fb[1])
-            raise Exception('Impossible to store entry in MessageReceived table, DB integrity compromised, EXIT')
+            raise Exception('Impossible to store entry in typeEvent_assume_role table, DB integrity compromised, EXIT')
 
         return 0, None
 
@@ -371,12 +374,12 @@ class Storage(metaclass=Singleton):
 
         fb = self.__DBM.storeTableEntry('events', [submitter_id, ts, event_type])
         if fb[0] != 0:
-            return fb[0], 'Error while storing Message-Sent Event:  ' + fb[1]
+            return fb[0], 'Error while storing Scan Event:  ' + fb[1]
 
         res = self.__DBM.getTuple('events', submitter_id=submitter_id, timestamp=ts, type=event_type)
 
         if res[0] > 0:
-            return res[0], 'Error while storing Message-Sent Event: ' + res[1]
+            return res[0], 'Error while storing Scan Event: ' + res[1]
 
         if (res[0] == 0 and (res[1] is None)):
             raise Exception('entry not present on DB while previously stored, EXIT')
@@ -387,7 +390,7 @@ class Storage(metaclass=Singleton):
 
         if fb[0] != 0:
             print('ERROR: ', fb[1])
-            raise Exception('Impossible to store entry in MessageReceived table, DB integrity compromised, EXIT')
+            raise Exception('Impossible to store entry in typeEvent_scan table, DB integrity compromised, EXIT')
 
         return 0, None
 
@@ -396,7 +399,7 @@ class Storage(metaclass=Singleton):
         fb = self.__DBM.checkTupleExists('devices', submitter_id)
 
         if fb[0] != 0:
-            return fb[0], 'Error while storing Message-Sent Event:  ' + fb[1]
+            return fb[0], 'Error while checking the existence of a device:  ' + fb[1]
 
         if fb[0] == 0 and fb[1] == 0:
             self.__DBM.storeTableEntry('devices', [submitter_id])

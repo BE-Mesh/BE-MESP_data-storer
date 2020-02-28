@@ -53,7 +53,6 @@ def processLine(line):
 
 
 
-#todo
 def __manageCase(tokenized_line,event_type):
 
     timestamp = tokenized_line[0]
@@ -63,7 +62,7 @@ def __manageCase(tokenized_line,event_type):
 
     if(event_type == 0):
         # Message Sent
-        if len(tokenized_line) < 8:
+        if len(tokenized_line) < 9:
             return 5, 'event-type \'Message Sent\' requires more arguments'
 
         try:
@@ -71,13 +70,23 @@ def __manageCase(tokenized_line,event_type):
         except ValueError:
             return 6, 'event-type \'Message Sent\' needs an integer value for message_type field'
 
+        if tokenized_line[7].upper() != 'NULL':
+            try:
+                int(tokenized_line[7])
+            except ValueError:
+                return 6, 'event-type \'Message Sent\' needs an integer value, or \'NONE\', for sequence_number field'
+
+        else:
+            tokenized_line[7] = 'NULL'
+
         res = stor.storeMessageSentEvent(ts=tokenized_line[0],submitter_id=tokenized_line[1],sender=tokenized_line[3],
                                          receiver=tokenized_line[4],next_hop=tokenized_line[5],
-                                         message_type=tokenized_line[6], payload=tokenized_line[7])
+                                         message_type=tokenized_line[6],sequence_number=tokenized_line[7],
+                                         payload=tokenized_line[8])
 
     elif (event_type == 1):
         # Message Received
-        if len(tokenized_line) < 8:
+        if len(tokenized_line) < 9:
             return 5, 'event-type \'Message Received\' requires more arguments'
 
         try:
@@ -85,9 +94,19 @@ def __manageCase(tokenized_line,event_type):
         except ValueError:
             return 6, 'event-type \'Message Received\' needs an integer value for message_type field'
 
+        if tokenized_line[7].upper() != 'NULL':
+            try:
+                int(tokenized_line[7])
+            except ValueError:
+                return 6, 'event-type \'Message Received\' needs an integer value, or \'NONE\', for sequence_number field'
+        else:
+            tokenized_line[7] = 'NULL'
+
+
         res = stor.storeMessageRcvEvent(ts=tokenized_line[0], submitter_id=tokenized_line[1], sender=tokenized_line[3],
                                          receiver=tokenized_line[4], prev_hop=tokenized_line[5],
-                                         message_type=tokenized_line[6], payload=tokenized_line[7])
+                                         message_type=tokenized_line[6], sequence_number=tokenized_line[7],
+                                         payload=tokenized_line[8])
 
     elif (event_type == 2):
         # Outgoing Connection Attempt
