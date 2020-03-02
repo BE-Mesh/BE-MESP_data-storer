@@ -74,7 +74,7 @@ def __manageCase(tokenized_line,event_type):
             try:
                 int(tokenized_line[7])
             except ValueError:
-                return 6, 'event-type \'Message Sent\' needs an integer value, or \'NONE\', for sequence_number field'
+                return 6, 'event-type \'Message Sent\' needs an integer value, or \'NULL\', for sequence_number field'
 
         else:
             tokenized_line[7] = 'NULL'
@@ -98,7 +98,7 @@ def __manageCase(tokenized_line,event_type):
             try:
                 int(tokenized_line[7])
             except ValueError:
-                return 6, 'event-type \'Message Received\' needs an integer value, or \'NONE\', for sequence_number field'
+                return 6, 'event-type \'Message Received\' needs an integer value, or \'NULL\', for sequence_number field'
         else:
             tokenized_line[7] = 'NULL'
 

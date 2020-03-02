@@ -10,10 +10,41 @@ import datetime
 class Storage(metaclass=Singleton):
     def __init__(self):
 
+        self.__checkValidityDIRName()
+        self.__directory_path = self.__initializeOutputDir()[1]
+
         self.__database_path = self.__createDB()[1]
         self.__DBM = DatabaseManager(self.__database_path)
         self.__initializeDBstructure()
 
+    def __checkValidityDIRName(self):
+
+        if len(sys.argv) < 3:
+            err_code = '1C'  # C stands for custom
+            err_mess = 'NO OUTPUT DIRECTORY PASSED AS ARGUMENT'
+            err_details = 'please pass the name of a directory where to store results as argument'
+            raise ValueError(err_code, err_mess, err_details)
+
+        dir_name_check = bool(re.match('^[a-zA-Z0-9\-_]+$', str(sys.argv[1])))
+
+        if not dir_name_check:
+            err_code = '2C'  # C stands for custom
+            err_mess = 'INVALID NAME FOR A DIRECTORY'
+            err_details = 'please pass a name containing only letters/numbers/-/_  and no whitespace '
+            raise ValueError(err_code, err_mess, err_details)
+
+    def __initializeOutputDir(self):
+
+        script_root_path_str = str(Path(str(sys.argv[0])).absolute().parent.parent)
+        dir_path = Path(script_root_path_str + "/results/2-ds-results/" + str(sys.argv[2])).absolute()
+        print("Checking if ./results/2-ds-results/" + str(sys.argv[2]) + " exists...")
+        try:
+            os.makedirs(dir_path)
+        except OSError as e:
+            print("/results/2-ds-results/" + str(sys.argv[2]) + " already exists, continuing... ")
+
+        print("DIR initialized")
+        return 0,str(dir_path)
 
 
 
@@ -21,31 +52,23 @@ class Storage(metaclass=Singleton):
 
         db_name = ''
 
-        if len(sys.argv) < 3:
+        if len(sys.argv) < 4:
             print("No DB name passed, a db with random name will be created in ..results/2-ds-results/")
             db_name = 'DataBase_' + str(datetime.datetime.now().timestamp()).replace('.','')
 
         else:
 
-            db_name_check = bool(re.match('^[a-zA-Z0-9\-_]+$', str(sys.argv[2])))
+            db_name_check = bool(re.match('^[a-zA-Z0-9\-_]+$', str(sys.argv[3])))
 
             if not db_name_check:
-                err_code = '1C'  # C stands for custom
+                err_code = '2C'  # C stands for custom
                 err_mess = 'INVALID NAME FOR A DB'
                 err_details = 'please pass a name containing only letters/numbers/-/_  and no whitespace '
                 raise ValueError(err_code, err_mess, err_details)
 
-            db_name = str(sys.argv[2])
+            db_name = str(sys.argv[3])
 
-        script_root_path_str = str(Path(str(sys.argv[0])).absolute().parent.parent)
-        db_dir_path = str(Path(script_root_path_str + "/results/2-ds-results/").absolute())
-        try:
-            os.makedirs(db_dir_path)
-        except OSError as e:
-            print("/results/2-ds-results/ " + " already exists... continuing ")
-        print("directory initialized, creating DB")
-
-        db_path = db_dir_path + '/' + db_name + '.db'
+        db_path = self.__directory_path + '/' + db_name + '.db'
 
         check_var = True
         while check_var:
@@ -53,7 +76,7 @@ class Storage(metaclass=Singleton):
                 Path(db_path).absolute().touch(exist_ok=False)
             except FileExistsError as e:
                 print('E: ', e.strerror)
-                db_path = db_dir_path + '/' + db_name + '_' + str(datetime.datetime.now().timestamp()).replace('.','') + '.db'
+                db_path = self.__directory_path + '/' + db_name + '_' + str(datetime.datetime.now().timestamp()).replace('.','') + '.db'
                 continue
             check_var = False
 
