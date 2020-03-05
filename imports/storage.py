@@ -1,5 +1,6 @@
 from .utilities.singleton import Singleton
 from .utilities.databaseManager import DatabaseManager
+from .utilities.outputDirectoryManager import OutputDirectoryManager
 from pathlib import Path
 import re
 import sys
@@ -10,43 +11,13 @@ import datetime
 class Storage(metaclass=Singleton):
     def __init__(self):
 
-        self.__checkValidityDIRName()
-        self.__directory_path = self.__initializeOutputDir()[1]
+        self.__directory_path = OutputDirectoryManager().getOutputDir()
 
         self.__database_path = self.__createDB()[1]
         self.__DBM = DatabaseManager(self.__database_path)
         self.__initializeDBstructure()
 
-    def __checkValidityDIRName(self):
 
-        if len(sys.argv) < 4:
-            err_code = '1C'  # C stands for custom
-            err_mess = 'NO OUTPUT DIRECTORY VALUES PASSED AS ARGUMENT'
-            err_details = 'please pass the name of the output case directory and the name of subcase subdirectory'
-            raise ValueError(err_code, err_mess, err_details)
-
-        case_dir_name_check = bool(re.match('^[a-zA-Z0-9\-_]+$', str(sys.argv[2])))
-        subcase_dir_name_check = bool(re.match('^[a-zA-Z0-9\-_]+$', str(sys.argv[3])))
-
-        if not case_dir_name_check or not subcase_dir_name_check:
-            err_code = '2C'  # C stands for custom
-            err_mess = 'INVALID NAME FOR A DIRECTORY'
-            err_details = 'please pass a name containing only letters/numbers/-/_  and no whitespace '
-            raise ValueError(err_code, err_mess, err_details)
-
-    def __initializeOutputDir(self):
-
-        script_root_path_str = str(Path(str(sys.argv[0])).absolute().parent.parent)
-        dir_path = Path(script_root_path_str + "/results/2-ds-results/" + str(sys.argv[2])
-                        +'/' + str(sys.argv[3])).absolute()
-        print("Checking if ./results/2-ds-results/" + str(sys.argv[2]) +'/' + str(sys.argv[3]) + " exists...")
-        try:
-            os.makedirs(dir_path)
-        except OSError as e:
-            print("/results/2-ds-results/" + str(sys.argv[2]) +'/' + str(sys.argv[3]) + " already exists, continuing... ")
-
-        print("DIR initialized")
-        return 0,str(dir_path)
 
 
 
@@ -416,6 +387,7 @@ class Storage(metaclass=Singleton):
         if fb[0] != 0:
             print('ERROR: ', fb[1])
             raise Exception('Impossible to store entry in typeEvent_scan table, DB integrity compromised, EXIT')
+
 
         return 0, None
 
