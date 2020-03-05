@@ -19,15 +19,16 @@ class Storage(metaclass=Singleton):
 
     def __checkValidityDIRName(self):
 
-        if len(sys.argv) < 3:
+        if len(sys.argv) < 4:
             err_code = '1C'  # C stands for custom
-            err_mess = 'NO OUTPUT DIRECTORY PASSED AS ARGUMENT'
-            err_details = 'please pass the name of a directory where to store results as argument'
+            err_mess = 'NO OUTPUT DIRECTORY VALUES PASSED AS ARGUMENT'
+            err_details = 'please pass the name of the output case directory and the name of subcase subdirectory'
             raise ValueError(err_code, err_mess, err_details)
 
-        dir_name_check = bool(re.match('^[a-zA-Z0-9\-_]+$', str(sys.argv[1])))
+        case_dir_name_check = bool(re.match('^[a-zA-Z0-9\-_]+$', str(sys.argv[2])))
+        subcase_dir_name_check = bool(re.match('^[a-zA-Z0-9\-_]+$', str(sys.argv[3])))
 
-        if not dir_name_check:
+        if not case_dir_name_check or not subcase_dir_name_check:
             err_code = '2C'  # C stands for custom
             err_mess = 'INVALID NAME FOR A DIRECTORY'
             err_details = 'please pass a name containing only letters/numbers/-/_  and no whitespace '
@@ -36,12 +37,13 @@ class Storage(metaclass=Singleton):
     def __initializeOutputDir(self):
 
         script_root_path_str = str(Path(str(sys.argv[0])).absolute().parent.parent)
-        dir_path = Path(script_root_path_str + "/results/2-ds-results/" + str(sys.argv[2])).absolute()
-        print("Checking if ./results/2-ds-results/" + str(sys.argv[2]) + " exists...")
+        dir_path = Path(script_root_path_str + "/results/2-ds-results/" + str(sys.argv[2])
+                        +'/' + str(sys.argv[3])).absolute()
+        print("Checking if ./results/2-ds-results/" + str(sys.argv[2]) +'/' + str(sys.argv[3]) + " exists...")
         try:
             os.makedirs(dir_path)
         except OSError as e:
-            print("/results/2-ds-results/" + str(sys.argv[2]) + " already exists, continuing... ")
+            print("/results/2-ds-results/" + str(sys.argv[2]) +'/' + str(sys.argv[3]) + " already exists, continuing... ")
 
         print("DIR initialized")
         return 0,str(dir_path)
@@ -52,13 +54,13 @@ class Storage(metaclass=Singleton):
 
         db_name = ''
 
-        if len(sys.argv) < 4:
+        if len(sys.argv) < 5:
             print("No DB name passed, a db with random name will be created in ..results/2-ds-results/")
             db_name = 'DataBase_' + str(datetime.datetime.now().timestamp()).replace('.','')
 
         else:
 
-            db_name_check = bool(re.match('^[a-zA-Z0-9\-_]+$', str(sys.argv[3])))
+            db_name_check = bool(re.match('^[a-zA-Z0-9\-_]+$', str(sys.argv[4])))
 
             if not db_name_check:
                 err_code = '2C'  # C stands for custom
@@ -66,7 +68,7 @@ class Storage(metaclass=Singleton):
                 err_details = 'please pass a name containing only letters/numbers/-/_  and no whitespace '
                 raise ValueError(err_code, err_mess, err_details)
 
-            db_name = str(sys.argv[3])
+            db_name = str(sys.argv[4])
 
         db_path = self.__directory_path + '/' + db_name + '.db'
 
@@ -390,7 +392,7 @@ class Storage(metaclass=Singleton):
 
     def storeScanEvent(self,ts,submitter_id,status):
         event_type = 7
-        print ("Storing Scan Event with status %s ..." % status)
+        print ("Storing Scan Event with submitter-id - %s - timestamp %s -  status %s ..." % (submitter_id,ts,status))
         fb = self.__registerSubmitterDeviceOnDB(submitter_id)
         if fb[0] != 0:
             return fb

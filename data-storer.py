@@ -1,12 +1,20 @@
 from imports import storage
 from imports import inputRetriever
+import sys
 import re
 
 NUM_EVENTS = 8
 
 
 def main():
-    print("hello world")
+
+    if len(sys.argv) < 4:
+        err_code = '0C'  # C stands for custom
+        err_mess = 'NOT ENOUGH INPUT ARGUMENTS'
+        err_details = 'please pass the name of input directory, output test direcotry and subcase directory with the name of the considered subcase'
+        raise ValueError(err_code, err_mess, err_details)
+
+
     ir = inputRetriever.InputRetriever()
     stor = storage.Storage()
 
